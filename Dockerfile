@@ -164,6 +164,38 @@ COPY --chown=$UID:$GID --from=build /app/build /app/build
 COPY --chown=$UID:$GID --from=build /app/CHANGELOG.md /app/CHANGELOG.md
 COPY --chown=$UID:$GID --from=build /app/package.json /app/package.json
 
+# --- START IHRER BENUTZERDEFINIERTEN ANPASSUNGEN ---
+
+# 1. Standard-Favicons und custom.css LÖSCHEN, die vom Frontend-Build kopiert wurden.
+# Dies stellt sicher, dass unsere Versionen die einzigen sind.
+# Der '|| true' am Ende verhindert, dass der Build fehlschlägt, falls eine Datei nicht existiert.
+RUN rm -f /app/build/favicon.png \
+              /app/build/favicon.ico \
+              /app/build/static/favicon.png \
+              /app/build/static/favicon.ico \
+              /app/build/static/favicon.svg \
+              /app/build/static/favicon-96x96.png \
+              /app/build/static/favicon-dark.png \
+              /app/build/static/apple-touch-icon.png \
+              /app/build/static/site.webmanifest \
+              /app/build/static/web-app-manifest-192x192.png \
+              /app/build/static/web-app-manifest-512x512.png \
+              /app/build/static/custom.css || true
+
+# 2. Ihre custom.css und Bilder aus Ihrem Repository kopieren.
+# Diese Dateien werden in die statischen Ordner des gebauten Frontends kopiert.
+# Stellen Sie sicher, dass diese Dateien im ROOT Ihres geforkten GitHub-Repos liegen.
+COPY --chown=$UID:$GID custom.css /app/build/static/custom.css
+COPY --chown=$UID:$GID favicon.png /app/build/favicon.png
+COPY --chown=$UID:$GID favicon.png /app/build/static/favicon.png
+COPY --chown=$UID:$GID logo.png /app/build/static/logo.png
+# Fügen Sie hier weitere COPY-Befehle für andere Favicon-Größen hinzu, die Sie haben:
+COPY --chown=$UID:$GID favicon-96x96.png /app/build/static/favicon-96x96.png
+COPY --chown=$UID:$GID favicon.ico /app/build/static/favicon.ico
+COPY --chown=$UID:$GID favicon.svg /app/build/static/favicon.svg
+# --- ENDE IHRER BENUTZERDEFINIERTEN ANPASSUNGEN ---
+
+
 # copy backend files
 COPY --chown=$UID:$GID ./backend .
 
